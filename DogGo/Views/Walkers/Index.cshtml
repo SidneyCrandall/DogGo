@@ -15,11 +15,12 @@
     <thead>
         <tr>
            <!-- <th>
-                
+                // held the id column, that users technicall shouldnt see
             </th> -->
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
+            @* Refactor for users to just see the neighborhood name *@
             <th>
                 @Html.DisplayNameFor(model => model.NeighborhoodId)
             </th>
@@ -30,9 +31,9 @@
         </tr>
     </thead>
     <tbody>
+        @* Loops over the item of Walker that comes from Walker Model. This in turn displays the name and image of a Wlaker in a list form *@
 @foreach (var item in Model) {
         <tr>
-
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
@@ -48,6 +49,6 @@
                 @Html.ActionLink("Delete", "Delete", new {  id=item.Id  })
             </td>
         </tr>
-}
+     }
     </tbody>
 </table>

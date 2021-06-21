@@ -1,4 +1,6 @@
-﻿namespace DogGo.Models
+﻿// Properties of the Neighborhood based off the table in the database.
+
+namespace DogGo.Models
 {
     public class Neighborhood
     {
