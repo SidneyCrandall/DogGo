@@ -1,4 +1,6 @@
-﻿using System;
+﻿// These are data request to grab info of the neighborhood
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,6 +27,7 @@ namespace DogGo.Repositories
             }
         }
 
+        // We want to grab all the Neighborhoods and list them so we can attach them to a walker
         public List<Neighborhood> GetAll()
         {
             using (SqlConnection conn = Connection)
