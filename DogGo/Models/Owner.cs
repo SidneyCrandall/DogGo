@@ -16,5 +16,7 @@ namespace DogGo.Models
         public int NeighborhoodId { get; set; }
         // Similar to the Walker model, let's grab the Foreign Entity of the Neighborhood, for the future.
         public Neighborhood Neighborhood { get; set; }
+        // Lets attach Dogs to the owners as well
+        public List<Dog> Dogs { get; set; } = new List<Dog>();
     }
 }
