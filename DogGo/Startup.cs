@@ -26,10 +26,12 @@ namespace DogGo
         {
             // Get the tranisent, but add the class
             services.AddControllersWithViews();
-            //Used to display Walker
+            // Used to display Walker
             services.AddTransient<IWalkerRepository, WalkerRepository>();
             // Added to have Owner display
             services.AddTransient<IOwnerRepository, OwnerRepository>();
+            // Ability to view Dogs 
+            services.AddTransient<IDogRepository, DogRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
