@@ -24,6 +24,7 @@ namespace DogGo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Get the tranisent, but add the class
             services.AddControllersWithViews();
             //Used to display Walker
             services.AddTransient<IWalkerRepository, WalkerRepository>();

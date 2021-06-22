@@ -1,4 +1,5 @@
 ﻿// Controls to handle HTTP response
+// ActionResult/IActionResult
 
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -44,6 +45,32 @@ namespace DogGo.Controllers
                 return NotFound();
             }
             return View(owner);
+        }
+
+        // GET: the form for a new owner to fill out and be added to the database
+        public ActionResult Create()
+        {
+           // Return the empty form.
+            return View();
+        }
+
+        // POST: Owners/Create
+        // Above, we just GET a form. At that point the form will not POST data of a new owner.
+        // This a response to the GET request. 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Owner owner)
+        {
+            try
+            {
+                _ownerRepo.AddOwner(owner);
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                return View(owner);
+            }
         }
     }
 }

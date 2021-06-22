@@ -1,4 +1,4 @@
-﻿// Controls handle the HTTP request.
+﻿// Controller to handle the HTTP request.
 
 using DogGo.Models;
 using DogGo.Repositories;
