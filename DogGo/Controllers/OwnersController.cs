@@ -72,5 +72,33 @@ namespace DogGo.Controllers
                 return View(owner);
             }
         }
+
+        // GET: Owners/Delete/5
+        // Similar to above except this time we just want to delete one owner
+        // Let's invoke the GetOwnerById, so we can prompt users
+        public ActionResult Delete(int id)
+        {
+            Owner owner = _ownerRepo.GetOwnerById(id);
+
+            return View(owner);
+        }
+
+        // POST: Owners/Delete/5
+        // We need a response for the GET above..
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Delete(int id, Owner owner)
+        {
+            try
+            {
+                _ownerRepo.DeleteOwner(id);
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                return View(owner);
+            }
+        }
     }
 }
