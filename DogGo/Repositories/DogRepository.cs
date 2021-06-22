@@ -1,10 +1,11 @@
 ﻿using DogGo.Models;
+using System;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 namespace DogGo.Repositories
 {
     public class DogRepository : IDogRepository
@@ -20,7 +21,7 @@ namespace DogGo.Repositories
         {
             get
             {
-                return new SqlConnection(_config.GetConnectionString("DeafultConnection"));
+                return new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             }
         }
 
@@ -29,7 +30,6 @@ namespace DogGo.Repositories
             using (SqlConnection conn = Connection)
             {
                 conn.Open();
-
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"SELECT Id, [Name], OwnerId, Breed, Notes, ImageUrl
