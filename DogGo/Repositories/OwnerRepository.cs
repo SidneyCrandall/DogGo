@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DogGo.Models;
-
+﻿using DogGo.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace DogGo.Repositories
 {
@@ -35,8 +31,9 @@ namespace DogGo.Repositories
 
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT Id, [Name], Email, [Address], Phone, NeighborhoodId
-                                         FROM Owner";
+                    cmd.CommandText = @"SELECT o.Id, o.[Name], o.Email, o.[Address], o.Phone, o.NeighborhoodId, n.Name as NeighborhoodName
+                                            FROM Owner o
+                                            LEFT JOIN Neighborhood n on o.NeighborhoodId = n.Id";
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -54,6 +51,13 @@ namespace DogGo.Repositories
                             NeighborhoodId = reader.GetInt32(reader.GetOrdinal("NeighborhoodId"))
                         };
 
+                        Neighborhood neighborhood = new Neighborhood
+                        {
+                            Id = owner.NeighborhoodId,
+                            Name = reader.GetString(reader.GetOrdinal("NeighborhoodName"))
+                        };
+
+                        owner.Neighborhood = neighborhood;
                         owners.Add(owner);
                     }
                     reader.Close();
@@ -72,9 +76,10 @@ namespace DogGo.Repositories
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
                     // Instead of grabbing all the Owners we just need to query the value of one
-                    cmd.CommandText = @"SELECT o.Id, o.[Name], o.Email, o.Address, o.Phone, o.NeighborhoodId, d.Name as 'Dog Name'
+                    cmd.CommandText = @"SELECT o.Id, o.[Name], o.Email, o.Address, o.Phone, o.NeighborhoodId, d.Name as DogName, n.Name as NeighborhoodName
                                         FROM Owner o
                                         LEFT JOIN Dog d on d.OwnerId = o.Id
+                                        LEFT JOIN Neighborhood n ON o.NeighborhoodId = n.Id
                                         WHERE o.Id = @id";
 
                     List<Dog> dogs = new List<Dog>();
@@ -94,6 +99,14 @@ namespace DogGo.Repositories
                             Phone = reader.GetString(reader.GetOrdinal("Phone")),
                             NeighborhoodId = reader.GetInt32(reader.GetOrdinal("NeighborhoodId"))
                         };
+
+                        Neighborhood neighborhood = new Neighborhood
+                        {
+                            Id = owner.NeighborhoodId,
+                            Name = reader.GetString(reader.GetOrdinal("NeighborhoodName"))
+                        };
+
+                        owner.Neighborhood = neighborhood;
 
                         reader.Close();
 

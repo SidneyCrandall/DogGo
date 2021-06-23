@@ -111,6 +111,7 @@ namespace DogGo.Repositories
             }
         }
 
+        // Code block used to help gather the ModelView 
         public List<Dog> GetDogsByOwnerId(int ownerId)
         {
             using (SqlConnection conn = Connection)
@@ -158,6 +159,7 @@ namespace DogGo.Repositories
                 }
             }
         }
+
 
         // I had to refactor this code block. It wouldnt post to the list. Unlike the other queries, I do not add a ternary.
         // Each field will be entered to be posted.

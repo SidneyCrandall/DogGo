@@ -32,6 +32,8 @@ namespace DogGo
             services.AddTransient<IOwnerRepository, OwnerRepository>();
             // Ability to view Dogs 
             services.AddTransient<IDogRepository, DogRepository>();
+            // Same as above
+            services.AddTransient<INeighborhoodRepository, NeighborhoodRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
