@@ -93,13 +93,13 @@ namespace DogGo.Repositories
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Breed = reader.GetString(reader.GetOrdinal("Breed")),
+                            OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId")),
 
                             Notes = reader.IsDBNull(reader.GetOrdinal("Notes")) ? null :
                                 reader.GetString(reader.GetOrdinal("Notes")),
                             ImageUrl = reader.IsDBNull(reader.GetOrdinal("ImageUrl")) ? null :
-                                reader.GetString(reader.GetOrdinal("ImageUrl")),
+                                reader.GetString(reader.GetOrdinal("ImageUrl"))
 
-                            OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId"))
                         };
 
                         reader.Close();
@@ -111,7 +111,7 @@ namespace DogGo.Repositories
             }
         }
 
-        public void AddDog(Dog dog)
+        public List<Dog> GetDogsByOwnerId(int ownerId)
         {
             using (SqlConnection conn = Connection)
             {
@@ -119,37 +119,68 @@ namespace DogGo.Repositories
 
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"INMSERT INTO Dog ([Name], OwnerId, Breed, Notes, ImageUrl)
-                                        OUTPUT INSERTED.ID
-                                        VALUES (@name, @ownerId, @breed, @notes, @imageUrl);";
+                    cmd.CommandText = @"
+                SELECT Id, Name, Breed, Notes, ImageUrl, OwnerId 
+                FROM Dog
+                WHERE OwnerId = @ownerId
+            ";
 
-                    // The columns must contain input in order to be added to the database
+                    cmd.Parameters.AddWithValue("@ownerId", ownerId);
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    List<Dog> dogs = new List<Dog>();
+
+                    while (reader.Read())
+                    {
+                        Dog dog = new Dog()
+                        {
+                            Id = reader.GetInt32(reader.GetOrdinal("Id")),
+                            Name = reader.GetString(reader.GetOrdinal("Name")),
+                            Breed = reader.GetString(reader.GetOrdinal("Breed")),
+                            OwnerId = reader.GetInt32(reader.GetOrdinal("OwnerId"))
+                        };
+
+                        // Check if optional columns are null
+                        if (reader.IsDBNull(reader.GetOrdinal("Notes")) == false)
+                        {
+                            dog.Notes = reader.GetString(reader.GetOrdinal("Notes"));
+                        }
+                        if (reader.IsDBNull(reader.GetOrdinal("ImageUrl")) == false)
+                        {
+                            dog.ImageUrl = reader.GetString(reader.GetOrdinal("ImageUrl"));
+                        }
+
+                        dogs.Add(dog);
+                    }
+                    reader.Close();
+                    return dogs;
+                }
+            }
+        }
+
+        // I had to refactor this code block. It wouldnt post to the list. Unlike the other queries, I do not add a ternary.
+        // Each field will be entered to be posted.
+        public void AddDog(Dog dog)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"INSERT INTO Dog (Name, Breed, Notes, ImageUrl, OwnerId)
+                                               OUTPUT INSERTED.ID
+                                               VALUES (@name, @breed, @notes, @imageUrl, @ownerId)";
+
                     cmd.Parameters.AddWithValue("@name", dog.Name);
                     cmd.Parameters.AddWithValue("@breed", dog.Breed);
+                    cmd.Parameters.AddWithValue("@notes", dog.Notes);
+                    cmd.Parameters.AddWithValue("@imageUrl", dog.ImageUrl);
                     cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);
 
-                    // These columns can remain or have a value of null and still be added to the DB
-                    if (dog.Notes == null)
-                    {
-                        cmd.Parameters.AddWithValue("@notes", DBNull.Value);
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@notes", dog.Notes);
-                    }
+                    int id = (int)cmd.ExecuteScalar();
 
-                    if (dog.ImageUrl == null)
-                    {
-                        cmd.Parameters.AddWithValue("@imageUrl", DBNull.Value);
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@imageUrl", dog.ImageUrl);
-                    }
-
-                    int newlyCreatedId = (int)cmd.ExecuteScalar();
-
-                    dog.Id = newlyCreatedId;
+                    dog.Id = id;
                 }
             }
         }
