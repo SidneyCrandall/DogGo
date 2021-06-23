@@ -1,4 +1,5 @@
 ﻿// Properties that belong to an Individual Dog Walker. This table conatins foreign keys as well.
+using System;
 
 namespace DogGo.Models
 {

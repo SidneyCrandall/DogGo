@@ -13,6 +13,7 @@ namespace DogGo.Models
         public string Notes { get; set; }
         public string ImageUrl { get; set; }
         public int OwnerId { get; set; }
-        //public Owner owner { get; set; }
+        // Similar to the neighborhood, we want to attach the whole entity of the owner
+        public Owner owner { get; set; }
     }
 }

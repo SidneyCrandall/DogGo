@@ -1,4 +1,5 @@
 ﻿// Properties of the Neighborhood based off the table in the database.
+using System;
 
 namespace DogGo.Models
 {

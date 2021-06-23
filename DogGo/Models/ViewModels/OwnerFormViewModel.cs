@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// Form to be used in editing an owner. This will also aide in dropdowns
+using System.Collections.Generic;
 
 namespace DogGo.Models.ViewModels
 {

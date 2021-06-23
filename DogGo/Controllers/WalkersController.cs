@@ -1,6 +1,6 @@
 ﻿// Controller to handle the HTTP request.
-
 using DogGo.Models;
+using DogGo.Models.ViewModels;
 using DogGo.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-
 // This is logic that is already built in. We are simple adding more functionality to it.
 namespace DogGo.Controllers
 {
@@ -17,11 +16,13 @@ namespace DogGo.Controllers
     {
         // We call the repo which handles the Sql request.
         private readonly IWalkerRepository _walkerRepo;
+        private readonly IWalkRepository _walkRepo;
 
         // ASP.NET will give us an instance of our Walker Repository. This is called "Dependency Injection"
-        public WalkersController(IWalkerRepository walkerRepository)
+        public WalkersController(IWalkerRepository walkerRepository, IWalkRepository walkRepository)
         {
             _walkerRepo = walkerRepository;
+            _walkRepo = walkRepository;
         }
 
         /* Action Results first described in the 'HomController'. */
@@ -41,13 +42,15 @@ namespace DogGo.Controllers
         public ActionResult Details(int id)
         {
             Walker walker = _walkerRepo.GetWalkerById(id);
+            List<Walk> walks = _walkRepo.GetWalkByWalkerId(walker.Id);
 
-            if (walker == null)
+            ProfileViewModel vm = new ProfileViewModel()
             {
-                return NotFound();
-            }
+                Walker = walker,
+                Walks = walks
+            };
 
-            return View(walker);
+            return View(vm);
         }
 
         

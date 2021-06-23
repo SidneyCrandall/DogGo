@@ -63,7 +63,7 @@ namespace DogGo.Controllers
         // GET: the form for a new owner to fill out and be added to the database
         public ActionResult Create()
         {
-            // Return the empty form.
+           
             List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAll();
 
             OwnerFormViewModel vm = new OwnerFormViewModel()
