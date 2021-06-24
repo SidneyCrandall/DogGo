@@ -7,9 +7,10 @@ using DogGo.Models;
 // needed for query calls
 namespace DogGo.Repositories
 {
-    public interface IWalkRepository
+    public interface IWalksRepository
     {
-        public List<Walk> GetWalkByWalkerId(int walkerId);
+        public List<Walks> GetWalkByWalkerId(int walkerId);
+        public List<Walks> GetAll(); 
 
     }
 }

@@ -16,13 +16,13 @@ namespace DogGo.Controllers
     {
         // We call the repo which handles the Sql request.
         private readonly IWalkerRepository _walkerRepo;
-        private readonly IWalkRepository _walkRepo;
+        private readonly IWalksRepository _walksRepo;
 
         // ASP.NET will give us an instance of our Walker Repository. This is called "Dependency Injection"
-        public WalkersController(IWalkerRepository walkerRepository, IWalkRepository walkRepository)
+        public WalkersController(IWalkerRepository walkerRepository, IWalksRepository walksRepository)
         {
             _walkerRepo = walkerRepository;
-            _walkRepo = walkRepository;
+            _walksRepo = walksRepository;
         }
 
         /* Action Results first described in the 'HomController'. */
@@ -42,9 +42,9 @@ namespace DogGo.Controllers
         public ActionResult Details(int id)
         {
             Walker walker = _walkerRepo.GetWalkerById(id);
-            List<Walk> walks = _walkRepo.GetWalkByWalkerId(walker.Id);
+            List<Walks> walks = _walksRepo.GetWalkByWalkerId(walker.Id);
 
-            ProfileViewModel vm = new ProfileViewModel()
+            WalkerViewModel vm = new WalkerViewModel()
             {
                 Walker = walker,
                 Walks = walks
