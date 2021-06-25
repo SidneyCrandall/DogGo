@@ -1,14 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DogGo.Repositories;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace DogGo
 {
@@ -34,7 +31,12 @@ namespace DogGo
             services.AddTransient<IDogRepository, DogRepository>();
             // Same as above
             services.AddTransient<INeighborhoodRepository, NeighborhoodRepository>();
+            // We are now incorporating The walks.
             services.AddTransient<IWalksRepository, WalksRepository>();
+            // We wnat a user to have the ability to just change or view their own dogs and info. 
+            // This helps to Authenticate the user and what they will be able to see
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => options.LoginPath = "/Owners/LogIn");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +57,8 @@ namespace DogGo
 
             app.UseRouting();
 
+            // Authentication must come before the authorization. We need to 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

@@ -3,8 +3,6 @@ using System;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DogGo.Repositories
 {
@@ -120,11 +118,9 @@ namespace DogGo.Repositories
 
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
-                SELECT Id, Name, Breed, Notes, ImageUrl, OwnerId 
-                FROM Dog
-                WHERE OwnerId = @ownerId
-            ";
+                    cmd.CommandText = @"SELECT Id, Name, Breed, Notes, ImageUrl, OwnerId 
+                                            FROM Dog
+                                            WHERE OwnerId = @ownerId";
 
                     cmd.Parameters.AddWithValue("@ownerId", ownerId);
 
@@ -163,6 +159,7 @@ namespace DogGo.Repositories
 
         // I had to refactor this code block. It wouldnt post to the list. Unlike the other queries, I do not add a ternary.
         // Each field will be entered to be posted.
+        // taken from chapter 5. 
         public void AddDog(Dog dog)
         {
             using (SqlConnection conn = Connection)
@@ -170,19 +167,38 @@ namespace DogGo.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"INSERT INTO Dog (Name, Breed, Notes, ImageUrl, OwnerId)
-                                               OUTPUT INSERTED.ID
-                                               VALUES (@name, @breed, @notes, @imageUrl, @ownerId)";
+                    cmd.CommandText = @"INSERT INTO Dog ([Name], OwnerId, Breed, Notes, ImageUrl)
+                                        OUTPUT INSERTED.ID
+                                        VALUES (@name, @ownerId, @breed, @notes, @imageUrl);";
 
                     cmd.Parameters.AddWithValue("@name", dog.Name);
                     cmd.Parameters.AddWithValue("@breed", dog.Breed);
-                    cmd.Parameters.AddWithValue("@notes", dog.Notes);
-                    cmd.Parameters.AddWithValue("@imageUrl", dog.ImageUrl);
                     cmd.Parameters.AddWithValue("@ownerId", dog.OwnerId);
 
-                    int id = (int)cmd.ExecuteScalar();
+                    // nullable columns
+                    if (dog.Notes == null)
+                    {
+                        cmd.Parameters.AddWithValue("@notes", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@notes", dog.Notes);
+                    }
 
-                    dog.Id = id;
+                    if (dog.ImageUrl == null)
+                    {
+                        cmd.Parameters.AddWithValue("@imageUrl", DBNull.Value);
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue("@imageUrl", dog.ImageUrl);
+                    }
+
+
+                    int newlyCreatedId = (int)cmd.ExecuteScalar();
+
+                    dog.Id = newlyCreatedId;
+
                 }
             }
         }
@@ -233,7 +249,5 @@ namespace DogGo.Repositories
                 }
             }
         }
-
-
     }
 }

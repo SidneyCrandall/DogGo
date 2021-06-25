@@ -4,11 +4,13 @@
 using DogGo.Models;
 using DogGo.Models.ViewModels;
 using DogGo.Repositories;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace DogGo.Controllers
@@ -28,6 +30,47 @@ namespace DogGo.Controllers
             _dogRepo = dogRepository;
             _walkerRepo = walkerRepository;
             _neighborhoodRepo = neighborhoodRepository;
+        }
+
+        // This will help authenticate and authorize an owner to log in. It will allow them to do only certain things
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Login(LoginViewModel viewModel)
+        {
+            Owner owner = _ownerRepo.GetOwnerByEmail(viewModel.Email);
+
+            // Verify that a user is authorized
+            if (owner == null)
+            {
+                return Unauthorized();
+            }
+            // Create the data need and hold on to it. Cookie for a browser
+            List<Claim> claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, owner.Id.ToString()),
+        new Claim(ClaimTypes.Email, owner.Email),
+        new Claim(ClaimTypes.Role, "DogOwner"),
+    };
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
+
+            return RedirectToAction("Index", "Dogs");
+        }
+
+        // If someone logs out take them back to home dashboard or index page
+        public async Task<ActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
 
         /* Action Results first described in the 'HomController'. */
@@ -63,7 +106,7 @@ namespace DogGo.Controllers
         // GET: the form for a new owner to fill out and be added to the database
         public ActionResult Create()
         {
-           
+
             List<Neighborhood> neighborhoods = _neighborhoodRepo.GetAll();
 
             OwnerFormViewModel vm = new OwnerFormViewModel()
@@ -154,6 +197,5 @@ namespace DogGo.Controllers
                 return View(owner);
             }
         }
-
     }
 }
