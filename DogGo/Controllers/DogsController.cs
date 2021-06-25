@@ -81,6 +81,12 @@ namespace DogGo.Controllers
             {
                 return NotFound();
             }
+
+            // Allows for an owner to edit their own dog.
+            if (dog.OwnerId == GetCurrentUserId())
+            {
+                return View(dog);
+            }
             return View(dog);
         }
 
