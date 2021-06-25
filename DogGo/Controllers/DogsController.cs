@@ -11,6 +11,7 @@ namespace DogGo.Controllers
     public class DogsController : Controller
     {
         private readonly IDogRepository _dogRepo;
+
         public DogsController(IDogRepository dogRepository)
         {
             _dogRepo = dogRepository;
@@ -20,10 +21,11 @@ namespace DogGo.Controllers
         // GET: Request to see all the dogs on the browser 
         public ActionResult Index()
         {
-
+            // Tells the browser who is logged in and what they see
             int ownerId = GetCurrentUserId();
 
-            List<Dog> dogs = _dogRepo.GetAllDogs();
+            // chnaged from showing full list of dogs to only the one of that particular owner!
+            List<Dog> dogs = _dogRepo.GetDogsByOwnerId(ownerId);
 
             // Remember to insert an object or your code wont run.  
             return View(dogs);
@@ -77,16 +79,12 @@ namespace DogGo.Controllers
         {
             Dog dog = _dogRepo.GetDogById(id);
 
-            if (dog == null)
+            // This has been refactored to allow the logged in user to edit their dogs
+            if (dog.OwnerId != GetCurrentUserId())
             {
                 return NotFound();
             }
-
-            // Allows for an owner to edit their own dog.
-            if (dog.OwnerId == GetCurrentUserId())
-            {
-                return View(dog);
-            }
+            // after editing return the view to the dog
             return View(dog);
         }
 
@@ -111,6 +109,13 @@ namespace DogGo.Controllers
         public ActionResult Delete(int id)
         {
             Dog dog = _dogRepo.GetDogById(id);
+
+            // checking if the user is authorized to delete the dog
+            if (dog.OwnerId != GetCurrentUserId())
+            {
+                return NotFound();
+            }
+
             return View(dog);
         }
 

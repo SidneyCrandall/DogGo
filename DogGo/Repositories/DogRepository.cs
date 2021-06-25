@@ -30,8 +30,9 @@ namespace DogGo.Repositories
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT Id, [Name], OwnerId, Breed, Notes, ImageUrl
-                                        FROM Dog";
+                    cmd.CommandText = @"SELECT d.Id, d.[Name], d.OwnerId, d.Breed, d.Notes, d.ImageUrl, o.[Name] as Owner
+                                        FROM Dog
+                                        LEFT JOIN Owner o on d.Ownerid = o.Id";
 
                     SqlDataReader reader = cmd.ExecuteReader();
 
@@ -57,6 +58,11 @@ namespace DogGo.Repositories
 
                             ImageUrl = reader.IsDBNull(reader.GetOrdinal("ImageUrl")) ? null :
                                 reader.GetString(reader.GetOrdinal("ImageUrl"))
+                        };
+
+                        Owner owner = new Owner
+                        {
+                            Name = reader.GetString(reader.GetOrdinal("Owner"))
                         };
 
                         dogs.Add(dog);
